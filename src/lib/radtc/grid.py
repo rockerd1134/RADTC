@@ -82,7 +82,7 @@ class Edges:
         self.count = len( edges )
         self.farthest_source = None
 
-        for edge in sorted( edges ):
+        for edge in edges:
             if not edge.source in self.edge_map:
                 self.edge_map[ edge.source ] = { }
             self.edge_map[ edge.source ][ edge.destination ] = edge
