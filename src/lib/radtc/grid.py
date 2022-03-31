@@ -11,6 +11,28 @@ class GridLocation:
             return False
         return self.x == other.x and self.y == other.y
 
+    def __gt__( self, other: 'GridLocation' ):
+        if other == None:
+            return True
+        else: 
+            if self.x > other.x:
+                return True
+            elif self.x == other.x and self.y > other.y:
+                return True
+            else:
+                return False
+
+    def __lt__( self, other: 'GridLocation' ):
+        if other == None:
+            return True
+        else: 
+            if self.x < other.x:
+                return True
+            elif self.x == other.x and self.y < other.y:
+                return True
+            else:
+                return False
+
     def __hash__( self ):
         return self.x * 1000000 + self.y 
 
@@ -24,7 +46,31 @@ class Edge:
         return f"{self.source} -( {self.cost} )-> {self.destination}"
 
     def __eq__( self, other ):
+        if other == None:
+            return False
         return self.source == other.source and self.destination == other.destination and self.cost == other.cost
+
+    def __gt__( self, other: 'Edge' ):
+        if other == None:
+            return True
+        else: 
+            if self.source > other.source:
+                return True
+            elif self.source == other.source and self.destination > other.destination:
+                return True
+            else:
+                return False
+
+    def __lt__( self, other: 'Edge' ):
+        if other == None:
+            return False
+        else: 
+            if self.source < other.source:
+                return True
+            elif self.source == other.source and self.destination < other.destination:
+                return True
+            else:
+                return False
     
     def __hash__( self ):
         return str( self )
@@ -36,14 +82,14 @@ class Edges:
         self.count = len( edges )
         self.farthest_source = None
 
-        for edge in edges:
+        for edge in sorted( edges ):
             if not edge.source in self.edge_map:
                 self.edge_map[ edge.source ] = { }
             self.edge_map[ edge.source ][ edge.destination ] = edge
             #set farthest edge
             if not isinstance( self.farthest_source, GridLocation ):
                 self.farthest_source = edge.source
-
+            #print( edge )
             if self.farthest_source.x <= edge.source.x and self.farthest_source.y <= edge.source.y:
                 self.farthest_source = edge.source
 
@@ -53,7 +99,7 @@ class Edges:
             edges.append( self.edge_map[ node ][ edge ] ) 
         return edges
 
-    def get_edges( self ):
+    def get_edges( self ) -> list[ 'Edge' ]:
         edges = []
         for node in list( self.edge_map.keys() ):
             for edge in list( self.edge_map[ node ].keys() ):
@@ -108,29 +154,34 @@ class Grid:
         '''Creates a grid object from a config dictionary'''
 
         if 'generate' in config:
-            max_nodes = int( config[ 'generate' ].get( 'max_nodes', 100) )
-            hw_ratio = int( config[ 'generate' ].get( 'hw_ratio', 1) )
+            #max_nodes = int( config[ 'generate' ].get( 'max_nodes', 100) )
+            #hw_ratio = int( config[ 'generate' ].get( 'hw_ratio', 1) )
+            height = int( config[ 'generate' ].get( 'height', 10) )
+            width = int( config[ 'generate' ].get( 'height', 10) )
             edge_range = int( config[ 'generate' ].get( 'edge_range', 100) )
             edge_minimum = int( config[ 'generate' ].get( 'edge_minimum', 1) )
             impassible_percentage = int( config[ 'generate' ].get( 'impassible_percentage', 0) )
             cardnality = int( config[ 'generate' ].get( 'cardnality', 0) )
 
-            node_counts = Grid.get_height_and_width_from_max_and_ratio( max_nodes, hw_ratio )
-            x_max = node_counts[ 'x' ]
-            y_max = node_counts[ 'y' ]
+            #node_counts = Grid.get_height_and_width_from_max_and_ratio( max_nodes, hw_ratio )
+            x_max = width - 1
+            y_max = height - 1
 
             edges = []
-            for x in range( x_max ):
-                for y in range( y_max ):
+            for x in range( width ):
+                for y in range( height ):
+                    #print( f"{x},{y}" )
+                    next_x = x + 1
+                    next_y = y + 1
                     #make edge to the East
-                    if x + 1 <= x_max:
+                    if next_x <= x_max:
                         east_edge_forward = Edge( 
                             GridLocation( x,  y ), 
-                            GridLocation( x + 1, y ), 
+                            GridLocation( next_x, y ), 
                             Grid._get_edge_cost_on_create()    
                         )
                         east_edge_backward = Edge( 
-                            GridLocation( x + 1,  y ), 
+                            GridLocation( next_x,  y ), 
                             GridLocation( x, y ), 
                             Grid._get_edge_cost_on_create()    
                         )
@@ -138,14 +189,14 @@ class Grid:
                         edges.append( east_edge_backward )
                     
                     #make edge to the North
-                    if y + 1 <= y_max:
+                    if next_y <= y_max:
                         north_edge_forward = Edge( 
                             GridLocation( x,  y ), 
-                            GridLocation( x, y + 1 ), 
+                            GridLocation( x, next_y ), 
                             Grid._get_edge_cost_on_create()    
                         )
                         north_edge_backward = Edge( 
-                            GridLocation( x,  y + 1 ), 
+                            GridLocation( x,  next_y ), 
                             GridLocation( x, y ), 
                             Grid._get_edge_cost_on_create()    
                         )
@@ -184,6 +235,20 @@ class Grid:
         else: 
             return None
 
+    #This is expensive 
+    def get_nodes( self ) -> set[ 'Node' ]:
+        ''' Get's all possible edge source and destination'''
+        nodes = set()
+        for edge in self.get_edges():
+            if not edge.source in nodes:
+                nodes.add( edge.source ) 
+            if not edge.destination in nodes:
+                nodes.add( edge.destination ) 
+        return nodes
+
+    def get_edges( self ) -> list[ 'Edge' ]:
+        return self.edges.get_edges()
+
     def get_node_at_location( self, loc: 'GridLocation' ) -> 'Node':
         if self.location_is_in_bounds( loc ):
             return Node( self, loc )
@@ -200,6 +265,8 @@ class Grid:
         return self.get_edge_between_locations( src.location, dest.location )
 
 class Node:
+
+    expands = 0
     ''' A class that represents a node but is really an interface for 4 edges'''
     def __init__( self,  grid: 'Grid', grid_location: 'GridLocation' ) -> None:
         self.location = grid_location
@@ -211,9 +278,8 @@ class Node:
     #### gets
     def expand( self ) -> list[ 'Node' ]:
         ''' returns adjacent nodes N,E,W,S '''
-     
-        #TODO
         #record the expantion
+        self.__class__.expands += 1
 
         nodes = []
         north = self.get_adjacent_north()
@@ -251,7 +317,7 @@ class Node:
         if self.is_adjacent( node ):
             return self.grid.get_edge_between_nodes( self, node )
         else:
-            return False
+            return None
 
     #### tests
     def is_adjacent( self, node: 'Node' ) -> bool:
