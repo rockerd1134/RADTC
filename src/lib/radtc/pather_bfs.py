@@ -38,14 +38,12 @@ class PatherBFS( PatherBase ):
         }
         ''' One iteration of the path finder routine'''
         current = self.frontier.get()
-        print( f"c: {current}" )
+        
         for next in current.expand():
-            print( f"n: {next}" )
-            print( self.came_from )
             if not next in self.came_from:
-                print( f"np: {next}" )
                 self.frontier.put(next)
                 self.came_from[ next ] = current
+
         if self.frontier.empty():
             results[ 'path' ] = self._get_path()
             results[ 'solved' ] = True
