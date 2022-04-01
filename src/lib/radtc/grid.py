@@ -272,8 +272,22 @@ class Node:
         self.location = grid_location
         self.grid = grid
 
-    def __str__( self ):
+    def __str__( self ) -> str:
         return str( self.location )
+
+    def __repr__( self ) -> str:
+        return self.__str__()
+
+    def __hash__(self) -> int:
+        return self.location.__hash__()
+
+    def __eq__(self, other ) -> bool:
+        if other == None:
+            return False
+        elif self.location == other.location:
+            return True
+        else:
+            return False
 
     #### gets
     def expand( self ) -> list[ 'Node' ]:
