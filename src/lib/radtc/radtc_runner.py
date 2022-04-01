@@ -1,5 +1,6 @@
 from calendar import c
 import sys
+import importlib
 from radtc.grid import Grid
 
 class Runner( ):
@@ -29,13 +30,12 @@ class Runner( ):
         #https://www.bensnider.com/dynamically-import-and-instantiate-python-classes.html
         if 'pather_module_lib_path' in config:
             sys.path.append( config[ 'run' ][ 'pather_module_lib_path' ] )
-        self.pather_module = __import__( config[ 'run' ][ 'pather_module' ] )
+        self.pather_module = importlib.import_module( config[ 'run' ][ 'pather_module' ] )
         print( dir( self.pather_module ) )
-        print( dir( self.pather_module.pather_bfs ) )
+        #print( dir( self.pather_module.pather_bfs ) )
         #self.pather_class = getattr( self.pather_module, config[ 'run' ][ 'pather_class' ] )
         #self.pather_class = globals()[ config[ 'run' ][ 'pather_class' ] ]
-        self.pather_class = getattr( self.pather_module.pather_bfs, config[ 'run' ][ 'pather_class' ] )
-
+        self.pather_class = getattr( self.pather_module, config[ 'run' ][ 'pather_class' ] )
          
 
     def run( self ) -> None:
