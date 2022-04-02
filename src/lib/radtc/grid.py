@@ -1,3 +1,6 @@
+import random
+
+
 class GridLocation: 
     def __init__( self, x: int, y: int ) -> None:
         self.x = x
@@ -123,7 +126,7 @@ class Grid:
     GRID_X_START_INDEX = 0
     GRID_Y_START_INDEX = 0
 
-    def __init__( self, edges: list[ Edge ] ) -> None:
+    def __init__( self, edges: list[ Edge ], edge_cost_set: list = [10] ) -> None:
         self.height = None 
         self.width = None 
         self.edges = Edges( edges )
@@ -145,8 +148,20 @@ class Grid:
         return { 'x': x, 'y':y, 'node_count': x * y, 'edge_count': x * y - x - y }
 
     @classmethod
-    def _get_edge_cost_on_create( cls ):
-        return 10
+    def _get_edge_cost_on_create( cls, edge_cost_set ):
+        return random.choice( edge_cost_set )
+
+    @classmethod
+    def _get_edge_cost_set( cls, edge_max, edge_minimum, cardnality ):
+        ecs = []
+        cards = 0
+        while cards < cardnality:
+            new_cost = random.randint( edge_minimum, edge_max )
+            if not new_cost in ecs: 
+                ecs.append( random.randint( edge_minimum, edge_max ))
+                cards += 1
+        return ecs
+
 
 
     @classmethod
@@ -158,15 +173,19 @@ class Grid:
             #hw_ratio = int( config[ 'generate' ].get( 'hw_ratio', 1) )
             height = int( config[ 'generate' ].get( 'height', 10) )
             width = int( config[ 'generate' ].get( 'height', 10) )
-            edge_range = int( config[ 'generate' ].get( 'edge_range', 100) )
+            edge_max = int( config[ 'generate' ].get( 'edge_max', 100) )
             edge_minimum = int( config[ 'generate' ].get( 'edge_minimum', 1) )
             impassible_percentage = int( config[ 'generate' ].get( 'impassible_percentage', 0) )
-            cardnality = int( config[ 'generate' ].get( 'cardnality', 0) )
+            cardnality = int( config[ 'generate' ].get( 'cardnality', 1) )
 
             #node_counts = Grid.get_height_and_width_from_max_and_ratio( max_nodes, hw_ratio )
             x_max = width - 1
             y_max = height - 1
 
+            edge_cost_set = cls._get_edge_cost_set( edge_max, edge_minimum, cardnality )
+
+
+            #ready to create the edges
             edges = []
             for x in range( width ):
                 for y in range( height ):
@@ -178,12 +197,12 @@ class Grid:
                         east_edge_forward = Edge( 
                             GridLocation( x,  y ), 
                             GridLocation( next_x, y ), 
-                            Grid._get_edge_cost_on_create()    
+                            Grid._get_edge_cost_on_create( edge_cost_set )    
                         )
                         east_edge_backward = Edge( 
                             GridLocation( next_x,  y ), 
                             GridLocation( x, y ), 
-                            Grid._get_edge_cost_on_create()    
+                            Grid._get_edge_cost_on_create( edge_cost_set )    
                         )
                         edges.append( east_edge_forward )
                         edges.append( east_edge_backward )
@@ -193,17 +212,17 @@ class Grid:
                         north_edge_forward = Edge( 
                             GridLocation( x,  y ), 
                             GridLocation( x, next_y ), 
-                            Grid._get_edge_cost_on_create()    
+                            Grid._get_edge_cost_on_create( edge_cost_set )    
                         )
                         north_edge_backward = Edge( 
                             GridLocation( x,  next_y ), 
                             GridLocation( x, y ), 
-                            Grid._get_edge_cost_on_create()    
+                            Grid._get_edge_cost_on_create( edge_cost_set )    
                         )
                         edges.append( north_edge_forward )
                         edges.append( north_edge_backward )
 
-            return Grid( edges )
+            return Grid( edges, edge_cost_set=edge_cost_set )
 
     @classmethod
     def adjacent_north_of( cls, location: 'GridLocation' ) -> 'GridLocation':

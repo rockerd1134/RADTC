@@ -10,11 +10,11 @@ def my_grid():
     config = {
         'generate' :{
             'height' : 10,
-            'width' : 10
-                #'edge_range' : 100,
-                #'edge_minimum' : 100,
+            'width' : 10,
+            'edge_max' : 100,
+            'edge_minimum' : 1,
                 #'impassible_percentage' : 100,
-                #'cardnality' : 100
+            'cardnality' : 10
         }
     }
     
