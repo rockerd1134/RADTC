@@ -1,7 +1,8 @@
 from calendar import c
 import sys
 import importlib
-from radtc.grid import Grid
+from tkinter import N
+from radtc.grid import Grid, Node
 
 class Runner( ):
     def __init__( self, config ) -> None:
@@ -30,22 +31,36 @@ class Runner( ):
             sys.path.append( config[ 'run' ][ 'pather_module_lib_path' ] )
         self.pather_module = importlib.import_module( config[ 'run' ][ 'pather_module' ] )
         self.pather_class = getattr( self.pather_module, config[ 'run' ][ 'pather_class' ] )
+
+        #for storing our report
+        # maybe this should be an object
+        self.report = {}
+        self.report_steps = config[ 'run' ].get( 'report_steps', False)
          
 
     def run( self ) -> None:
-        bfs = self.pather_class( self.grid, self.grid.get_node(  0, 0 ), self.grid.get_node( 1, 3))
+        pather = self.pather_class( 
+            self.grid, 
+            self.start, 
+            self.finish
+        )
 
         result = { 'path': None }
         count = 0
         while result[ 'path' ] == None and count < self.emergency_break_count:
             count += 1
-            result = bfs.step()
-            print( result )
+            result = pather.step()
+            #print( f"step: {count} ({self.emergency_break_count}) res: {result}" )
+            if self.report_steps:
+                self.report[ 'steps' ].append( f"step: {count} ({self.emergency_break_count}) res: {result}" )
             #print( sys.getsizeof( bfs ))
+        self.report[ 'pather_result' ] = result
+        self.report[ 'pather_step_count' ] = count
+        self.report[ 'pather_node_expands' ] = Node.expands
+        Node.expands = 0
 
-    def report( self ) -> dict:
-        report = {}
-        return report
+    def get_report( self ) -> dict:
+        return self.report
 
     @classmethod
     def check_config( cls, config ) -> dict:

@@ -22,11 +22,11 @@ class PatherBFS( PatherBase ):
         path = []
         count = 0
         while current != self.start and count < 102:
-            print( f"{count} {path}")
+            #print( f"{count} {path}")
             count += 1
             path.append( current )
             current = self.came_from[ current ]
-            print( f"current: {current} cf: {self.came_from[ current ]}")
+            #print( f"current: {current} cf: {self.came_from[ current ]}")
         path.append( self.start )
         return path
         #return path.reverse()

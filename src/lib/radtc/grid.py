@@ -283,6 +283,15 @@ class Grid:
     def get_edge_between_nodes( self, src: 'Node', dest: 'Node' ) -> 'Edge':
         return self.get_edge_between_locations( src.location, dest.location )
 
+    def get_manhattan_between_locations( self, src_loc: 'GridLocation', dest_loc: 'GridLocation' ) -> int: 
+        if self.location_is_in_bounds( src_loc ) and self.location_is_in_bounds( dest_loc ):
+            return abs( src_loc.x - dest_loc.y ) + abs( src_loc.y - dest_loc.y )
+        else:
+            return None
+
+    def get_manhattan_between_nodes( self, src: 'Node', dest: 'Node' ) -> int:
+        return self.get_manhattan_between_locations( src.location, dest.location )
+
 class Node:
 
     expands = 0
@@ -308,6 +317,22 @@ class Node:
         else:
             return False
 
+    def __gt__(self, other ) -> bool:
+        if other == None:
+            return True
+        elif self.location > other.location:
+            return True
+        else:
+            return False
+
+    def __lt__(self, other ) -> bool:
+        if other == None:
+            return False
+        elif self.location < other.location:
+            return True
+        else:
+            return False
+
     #### gets
     def expand( self ) -> list[ 'Node' ]:
         ''' returns adjacent nodes N,E,W,S '''
@@ -329,10 +354,6 @@ class Node:
             nodes.append( west )
         return nodes
 
-
-        
-        pass
-
     def get_adjacent_north( self ) -> 'Node':
         return self.grid.get_node_at_location( self.grid.adjacent_north_of( self.location ) )
 
@@ -345,12 +366,20 @@ class Node:
     def get_adjacent_west( self ) -> 'Node':
         return self.grid.get_node_at_location( self.grid.adjacent_west_of( self.location ) )
 
-
     def get_edge_to( self, node: 'Node' ) -> 'Edge':
         if self.is_adjacent( node ):
             return self.grid.get_edge_between_nodes( self, node )
         else:
             return None
+
+    def get_cost_to( self, node: 'Node' ) -> int:
+        edge_to = self.get_edge_to( node )
+        if edge_to != None:
+            return edge_to.cost
+        return None
+
+    def get_manhattan_to( self, dest: 'Node' ) -> int:
+        return self.grid.get_manhattan_between_nodes( self, dest )
 
     #### tests
     def is_adjacent( self, node: 'Node' ) -> bool:
