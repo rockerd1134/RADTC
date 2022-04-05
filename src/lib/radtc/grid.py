@@ -1,3 +1,4 @@
+from operator import mod
 import random
 
 
@@ -47,6 +48,9 @@ class Edge:
 
     def __str__( self ):
         return f"{self.source} -( {self.cost} )-> {self.destination}"
+
+    def __repr__( self ):
+        return self.__str__()
 
     def __eq__( self, other ):
         if other == None:
@@ -116,6 +120,7 @@ class Edges:
         return None
 
 
+
 #containes the needed information for creating a grid
 class GridConfig:
     def __init__( self, **kwargs ) -> None:
@@ -130,6 +135,8 @@ class Grid:
         self.height = None 
         self.width = None 
         self.edges = Edges( edges )
+        self.edge_cost_set = edge_cost_set
+        self.modification_history = []
         #self.lines = Lines( lines )
     
     def __str__( self ) -> str:
@@ -151,8 +158,11 @@ class Grid:
     def _get_edge_cost_on_create( cls, edge_cost_set ):
         return random.choice( edge_cost_set )
 
+    def _get_edge_cost_change_random( self ):
+        return random.choice( self.edge_cost_set )
+
     @classmethod
-    def _get_edge_cost_set( cls, edge_max, edge_minimum, cardnality ):
+    def _get_edge_cost_set( cls, edge_max: int, edge_minimum: int, cardnality: int ) -> list:
         ecs = []
         cards = 0
         while cards < cardnality:
@@ -161,8 +171,6 @@ class Grid:
                 ecs.append( random.randint( edge_minimum, edge_max ))
                 cards += 1
         return ecs
-
-
 
     @classmethod
     def from_config( cls, config: dict ) -> 'Grid':
@@ -224,6 +232,56 @@ class Grid:
 
             return Grid( edges, edge_cost_set=edge_cost_set )
 
+    
+
+    #def shuffle_edges_in_range( self, percentage=100, node_range_start: 'Node' = self.get_node( self.start ) ) -> list:
+    def shuffle_edges( self, percentage=100 ) -> list:
+        '''This will modify some number of edges based on edge_cost_set and percentage'''
+
+        modified_edge_count = 0
+        to_be_modified_edge_count = int( self.edges.count * ( percentage / 100 ) )
+        self.edges.farthest_source
+        modifications = []
+        eb = 0
+        while modified_edge_count <= to_be_modified_edge_count and eb < 40000:
+            eb += 1
+            modification = {
+                'type': 'EdgeCost',
+                'was': None,
+                'is' : None
+            }
+            #pick a random node to modify an edge on 
+            target_x = random.randint( 0, self.edges.farthest_source.x )
+            target_y = random.randint( 0, self.edges.farthest_source.y )
+            target_node = self.get_node_at_location( GridLocation( target_x, target_y ) )
+            if target_node != None:
+                direction_node = random.choice( 
+                    [ 
+                        target_node.get_adjacent_north(),
+                        target_node.get_adjacent_east(),
+                        target_node.get_adjacent_south(),
+                        target_node.get_adjacent_west(),
+                    ]
+                )
+                if direction_node != None:
+                    to_be_modified_edge = target_node.get_edge_to( direction_node )
+                    if to_be_modified_edge != None:
+                        modification[ 'was' ] = str( to_be_modified_edge )
+                        new_cost = self._get_edge_cost_change_random()
+                        while new_cost == to_be_modified_edge.cost:
+                            new_cost = self._get_edge_cost_change_random()
+                        to_be_modified_edge.cost = new_cost
+                        modification[ 'is' ] = str( to_be_modified_edge )
+                        modified_edge_count += 1
+                        modifications.append( modification )
+        self.modification_history.append( { 
+            'modifications': modifications,
+            'what': 'shuffle'
+        } )
+        return modifications
+                            
+
+    ##### info
     @classmethod
     def adjacent_north_of( cls, location: 'GridLocation' ) -> 'GridLocation':
         return GridLocation( location.x, location.y + 1 )
