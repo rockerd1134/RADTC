@@ -27,6 +27,13 @@ class Runner( ):
             100000000 #change to something defined
         )
 
+        self.step_modifications = config[ 'run' ].get( 
+            'step_modifications',
+            False
+        )
+        if self.step_modifications:
+            self.step_modifications_percent = int( config[ 'run' ][ 'step_modifications' ].get( 'percent' ) )
+
         if 'pather_module_lib_path' in config:
             sys.path.append( config[ 'run' ][ 'pather_module_lib_path' ] )
         self.pather_module = importlib.import_module( config[ 'run' ][ 'pather_module' ] )
@@ -36,6 +43,9 @@ class Runner( ):
         # maybe this should be an object
         self.report = {}
         self.report_steps = config[ 'run' ].get( 'report_steps', False)
+        self.report_memory = config[ 'run' ].get( 'report_memory', False)
+        #removed because of too much memory taken
+        #self.report_modifications = config[ 'run' ].get( 'report_modifications', False)
          
 
     def run( self ) -> None:
@@ -50,6 +60,8 @@ class Runner( ):
         while result[ 'path' ] == None and count < self.emergency_break_count:
             count += 1
             result = pather.step()
+            if self.step_modifications:
+                self.grid.shuffle_edges( self.step_modifications_percent )
             #print( f"step: {count} ({self.emergency_break_count}) res: {result}" )
             if self.report_steps:
                 self.report[ 'steps' ].append( f"step: {count} ({self.emergency_break_count}) res: {result}" )
@@ -57,7 +69,13 @@ class Runner( ):
         self.report[ 'pather_result' ] = result
         self.report[ 'pather_step_count' ] = count
         self.report[ 'pather_node_expands' ] = Node.expands
+        self.report[ 'edges' ] = self.grid.get_edges()
+        #removed because of too much memory taken
+        #if self.report_modifications:
+        #    self.report[ 'modifications' ] = self.grid.modification_history
         Node.expands = 0
+
+        self.report[ 'path_test' ] = self.grid.test_path( result[ 'path' ] )
 
     def get_report( self ) -> dict:
         return self.report
