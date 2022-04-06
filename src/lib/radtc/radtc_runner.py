@@ -44,6 +44,7 @@ class Runner( ):
         self.report = {}
         self.report_steps = config[ 'run' ].get( 'report_steps', False)
         self.report_memory = config[ 'run' ].get( 'report_memory', False)
+        self.report_grid_edges = config[ 'run' ].get( 'report_grid_edges', False)
         #removed because of too much memory taken
         #self.report_modifications = config[ 'run' ].get( 'report_modifications', False)
          
@@ -54,6 +55,8 @@ class Runner( ):
             self.start, 
             self.finish
         )
+
+        #maybe check for in bounds start and finish?
 
         result = { 'path': None }
         count = 0
@@ -69,7 +72,8 @@ class Runner( ):
         self.report[ 'pather_result' ] = result
         self.report[ 'pather_step_count' ] = count
         self.report[ 'pather_node_expands' ] = Node.expands
-        self.report[ 'edges' ] = self.grid.get_edges()
+        if self.report_grid_edges:
+          self.report[ 'edges' ] = self.grid.get_edges()
         #removed because of too much memory taken
         #if self.report_modifications:
         #    self.report[ 'modifications' ] = self.grid.modification_history
