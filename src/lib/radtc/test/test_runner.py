@@ -14,6 +14,34 @@ def test_runner_bad_config():
         print( runner.report() )
     print( e_info )
 
+def test_runner_with_edges():
+    config = {
+        'grid': {
+            'generate': {
+                'height': 6,
+                'width' : 6, 
+            }
+        },
+        'run' : {
+            'start': {
+                'x': 0,
+                'y': 0
+            },
+            'finish': {
+                'x': 5,
+                'y': 5, 
+            },
+            #'pather_module_lib_path' : r"C:\Users\rocker\Documents\Personal\classes\MS State\Spring 2022\AI\git\RADTC\src\lib\radtc\",
+            'pather_module' : 'radtc.pather_bfs',
+            'pather_class': 'PatherBFS',
+            'report_grid_edges': True
+        }
+    }
+
+    runner = Runner( config )
+    runner.run()
+    print( runner.get_report() )
+
 def test_runner():
     config = {
         'grid': {
