@@ -43,6 +43,9 @@ class Runner( ):
         # maybe this should be an object
         self.report = {}
         self.report_steps = config[ 'run' ].get( 'report_steps', False)
+        self.report_memory = config[ 'run' ].get( 'report_memory', False)
+        #removed because of too much memory taken
+        #self.report_modifications = config[ 'run' ].get( 'report_modifications', False)
          
 
     def run( self ) -> None:
@@ -67,8 +70,12 @@ class Runner( ):
         self.report[ 'pather_step_count' ] = count
         self.report[ 'pather_node_expands' ] = Node.expands
         self.report[ 'edges' ] = self.grid.get_edges()
-        self.report[ 'modifications' ] = self.grid.modification_history
+        #removed because of too much memory taken
+        #if self.report_modifications:
+        #    self.report[ 'modifications' ] = self.grid.modification_history
         Node.expands = 0
+
+        self.report[ 'path_test' ] = self.grid.test_path( result[ 'path' ] )
 
     def get_report( self ) -> dict:
         return self.report

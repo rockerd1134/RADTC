@@ -136,7 +136,7 @@ class Grid:
         self.width = None 
         self.edges = Edges( edges )
         self.edge_cost_set = edge_cost_set
-        self.modification_history = []
+#        self.modification_history = [] #removed because it consumed too much memory
         #self.lines = Lines( lines )
     
     def __str__( self ) -> str:
@@ -274,10 +274,10 @@ class Grid:
                         modification[ 'is' ] = str( to_be_modified_edge )
                         modified_edge_count += 1
                         modifications.append( modification )
-        self.modification_history.append( { 
-            'modifications': modifications,
-            'what': 'shuffle'
-        } )
+#        self.modification_history.append( { 
+#            'modifications': modifications,
+#            'what': 'shuffle'
+#        } )
         return modifications
                             
 
@@ -349,6 +349,27 @@ class Grid:
 
     def get_manhattan_between_nodes( self, src: 'Node', dest: 'Node' ) -> int:
         return self.get_manhattan_between_locations( src.location, dest.location )
+
+    def test_path( self, path ) -> dict:
+        results = {
+            'complete': False,
+            'errors': [],
+            'cost' : 0,
+            'path': path
+        }
+
+        step_count = 0
+        while step_count < len( path ) - 1:
+            cost_to_next = path[ step_count ].get_cost_to( path[ step_count + 1 ] )
+            if cost_to_next != None:
+                results[ 'cost' ] += cost_to_next
+            else:
+                results[ 'complete' ] = False
+                results[ 'errors' ].append( { 'source': path[ step_count ], 'dest': path[ step_count + 1 ] } )
+            step_count += 1
+
+        return results
+
 
 class Node:
 
