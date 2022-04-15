@@ -45,6 +45,7 @@ class Runner( ):
         self.report_steps = config[ 'run' ].get( 'report_steps', False)
         self.report_memory = config[ 'run' ].get( 'report_memory', False)
         self.report_grid_edges = config[ 'run' ].get( 'report_grid_edges', False)
+        self.report_grid_nodes = config[ 'run' ].get( 'report_grid_nodes', False)
         #removed because of too much memory taken
         #self.report_modifications = config[ 'run' ].get( 'report_modifications', False)
          
@@ -74,6 +75,8 @@ class Runner( ):
         self.report[ 'pather_node_expands' ] = Node.expands
         if self.report_grid_edges:
           self.report[ 'edges' ] = self.grid.get_edges()
+        if self.report_grid_nodes:
+          self.report[ 'nodes' ] = self.grid.get_nodes()
         #removed because of too much memory taken
         #if self.report_modifications:
         #    self.report[ 'modifications' ] = self.grid.modification_history

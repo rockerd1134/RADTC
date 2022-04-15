@@ -18,8 +18,11 @@ def test_runner_with_edges():
     config = {
         'grid': {
             'generate': {
-                'height': 6,
-                'width' : 6, 
+                'width' : 8, 
+                'height': 8,
+                'edge_max' : 1000,
+                'edge_minimum' : 1,
+                'cardnality' : 8 
             }
         },
         'run' : {
@@ -28,13 +31,14 @@ def test_runner_with_edges():
                 'y': 0
             },
             'finish': {
-                'x': 5,
+                'x': 7,
                 'y': 5, 
             },
             #'pather_module_lib_path' : r"C:\Users\rocker\Documents\Personal\classes\MS State\Spring 2022\AI\git\RADTC\src\lib\radtc\",
             'pather_module' : 'radtc.pather_bfs',
             'pather_class': 'PatherBFS',
-            'report_grid_edges': True
+            'report_grid_edges': True,
+            'report_grid_nodes': True
         }
     }
 
@@ -46,7 +50,7 @@ def test_runner():
     config = {
         'grid': {
             'generate': {
-                'height': 10,
+                'height': 8,
                 'width' : 10
             }
         },
@@ -100,7 +104,7 @@ def test_runner_astar_prune_random_edges():
     config = {
         'grid': {
             'generate': {
-                'height': 10,
+                'height': 8,
                 'width' : 10,
                 'edge_max' : 100,
                 'edge_minimum' : 1,

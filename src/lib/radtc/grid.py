@@ -10,6 +10,9 @@ class GridLocation:
     def __str__( self ) -> str:
         return( f"x: {self.x} y: {self.y}" )
 
+    def __repr__( self ) -> str:
+        return self.__str__()
+
     def __eq__( self, other: 'GridLocation' ):
         if other == None:
             return False
@@ -352,7 +355,7 @@ class Grid:
 
     def test_path( self, path ) -> dict:
         results = {
-            'complete': False,
+            'congruent': True,
             'errors': [],
             'cost' : 0,
             'path': path
