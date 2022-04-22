@@ -166,10 +166,10 @@ class Grid:
         return random.choice( self.edge_cost_set )
 
     @classmethod
-    def _get_edge_cost_set( cls, edge_max: int, edge_minimum: int, cardnality: int ) -> list:
+    def _get_edge_cost_set( cls, edge_max: int, edge_minimum: int, cardinality: int ) -> list:
         ecs = []
         cards = 0
-        while cards < cardnality:
+        while cards < cardinality:
             new_cost = random.randint( edge_minimum, edge_max )
             if not new_cost in ecs: 
                 ecs.append( random.randint( edge_minimum, edge_max ))
@@ -188,13 +188,13 @@ class Grid:
             edge_max = int( config[ 'generate' ].get( 'edge_max', 100) )
             edge_minimum = int( config[ 'generate' ].get( 'edge_minimum', 1) )
             impassible_percentage = int( config[ 'generate' ].get( 'impassible_percentage', 0) )
-            cardnality = int( config[ 'generate' ].get( 'cardnality', 1) )
+            cardinality = int( config[ 'generate' ].get( 'cardinality', 1) )
 
             #node_counts = Grid.get_height_and_width_from_max_and_ratio( max_nodes, hw_ratio )
             x_max = width - 1
             y_max = height - 1
 
-            edge_cost_set = cls._get_edge_cost_set( edge_max, edge_minimum, cardnality )
+            edge_cost_set = cls._get_edge_cost_set( edge_max, edge_minimum, cardinality )
 
 
             #ready to create the edges
