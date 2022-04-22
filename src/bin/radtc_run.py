@@ -3,6 +3,7 @@ import sys
 import argparse
 sys.path.append( '../lib')
 from radtc.radtc_loader import RadTCLoader
+from radtc.radtc_cli import RadTCCLI
 
 parser = argparse.ArgumentParser( description='RADTC runner' )
 parser.add_argument( 
@@ -15,5 +16,5 @@ args = parser.parse_args()
 
 runner = RadTCLoader.from_config_file( config_file= args.config_file)
 runner.run()
-print( runner.get_report() )
+RadTCCLI.print_report( runner.get_report() )
 

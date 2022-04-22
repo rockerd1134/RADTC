@@ -1,0 +1,3 @@
+How to test radtc:
+
+pytest test_runner.py
