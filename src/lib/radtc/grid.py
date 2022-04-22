@@ -11,6 +11,7 @@ class GridLocation:
         return( f"x: {self.x} y: {self.y}" )
 
     def __repr__( self ) -> str:
+        #return { 'x': self.x, 'y': self.y }
         return self.__str__()
 
     def __eq__( self, other: 'GridLocation' ):
@@ -358,7 +359,8 @@ class Grid:
             'congruent': True,
             'errors': [],
             'cost' : 0,
-            'path': path
+            'path': path,
+            'edge_path': []
         }
 
         step_count = 0
@@ -366,6 +368,7 @@ class Grid:
             cost_to_next = path[ step_count ].get_cost_to( path[ step_count + 1 ] )
             if cost_to_next != None:
                 results[ 'cost' ] += cost_to_next
+                results[ 'edge_path' ].append( path[ step_count ].get_edge_to( path[ step_count + 1 ]) )
             else:
                 results[ 'complete' ] = False
                 results[ 'errors' ].append( { 'source': path[ step_count ], 'dest': path[ step_count + 1 ] } )

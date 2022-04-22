@@ -9,8 +9,8 @@ import grid
 def my_grid():
     config = {
         'generate' :{
-            'height' : 10,
-            'width' : 10,
+            'height' :10,
+            'width' : 9,
             'edge_max' : 100,
             'edge_minimum' : 1,
                 #'impassible_percentage' : 100,
