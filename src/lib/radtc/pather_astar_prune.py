@@ -20,7 +20,7 @@ class PatherASP( PatherBase ):
         self.frontier = PriorityQueue()
         self.frontier.put( ( self.get_priority( start ), start, start ))
   
-    #the hueristic funtion
+    #the heuristic funtion
     # in the grid case we use manhattan
     def get_priority(self, node: 'Node' ):
         return self.f_table[ node ] + node.get_manhattan_to( self.finish )
