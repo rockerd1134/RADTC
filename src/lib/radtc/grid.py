@@ -140,6 +140,7 @@ class Grid:
         self.width = None 
         self.edges = Edges( edges )
         self.edge_cost_set = edge_cost_set
+        self.edge_cost_set_avg = int( sum( self.edge_cost_set ) / len( edge_cost_set ))
         self.modification_history = [] #removed because it consumed too much memory
         #self.lines = Lines( lines )
     
@@ -375,7 +376,7 @@ class Grid:
 
     def get_manhattan_between_locations( self, src_loc: 'GridLocation', dest_loc: 'GridLocation' ) -> int: 
         if self.location_is_in_bounds( src_loc ) and self.location_is_in_bounds( dest_loc ):
-            return abs( src_loc.x - dest_loc.y ) + abs( src_loc.y - dest_loc.y )
+            return ( abs( src_loc.x - dest_loc.y ) + abs( src_loc.y - dest_loc.y ) ) * self.edge_cost_set_avg
         else:
             return None
 
