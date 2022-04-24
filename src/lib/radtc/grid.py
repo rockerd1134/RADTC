@@ -140,7 +140,7 @@ class Grid:
         self.width = None 
         self.edges = Edges( edges )
         self.edge_cost_set = edge_cost_set
-#        self.modification_history = [] #removed because it consumed too much memory
+        self.modification_history = [] #removed because it consumed too much memory
         #self.lines = Lines( lines )
     
     def __str__( self ) -> str:
@@ -270,19 +270,47 @@ class Grid:
                 if direction_node != None:
                     to_be_modified_edge = target_node.get_edge_to( direction_node )
                     if to_be_modified_edge != None:
-                        modification[ 'was' ] = str( to_be_modified_edge )
+                        #modification[ 'was' ] = str( to_be_modified_edge )
+                        modification[ 'was' ] = to_be_modified_edge 
                         new_cost = self._get_edge_cost_change_random()
                         while new_cost == to_be_modified_edge.cost:
                             new_cost = self._get_edge_cost_change_random()
                         to_be_modified_edge.cost = new_cost
-                        modification[ 'is' ] = str( to_be_modified_edge )
+                        modification[ 'is' ] = to_be_modified_edge 
+                        #modification[ 'is' ] = str( to_be_modified_edge )
                         modified_edge_count += 1
                         modifications.append( modification )
-#        self.modification_history.append( { 
-#            'modifications': modifications,
-#            'what': 'shuffle'
-#        } )
+        self.modification_history.append( { 
+            'modifications': modifications,
+            'what': 'shuffle'
+        } )
         return modifications
+
+    def get_modifications( self, depth=1 ) -> list:
+        mods = []
+        x = 1
+        while x <= depth: 
+            if len( self.modification_history ) >= x:
+                mods.append( self.modification_history[0 - x ] )
+            x += 1
+        return mods
+
+    def get_last_modifications( self ) -> list:
+        mods = self.get_modifications()
+        if len( mods ) > 0:
+            return mods[0]
+        else:
+            return []
+
+    def get_last_modified_edges( self ) -> list:
+        modded_edges = []
+        mods = self.get_last_modifications()
+        if len( mods ) >= 1:
+            for modification in mods[ 'modifications']:
+                if modification[ 'type' ] == 'EdgeCost':
+                    modded_edges.append( modification[ 'is' ] )
+        return modded_edges
+
                             
 
     ##### info

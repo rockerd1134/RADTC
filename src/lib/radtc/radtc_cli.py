@@ -13,10 +13,12 @@ class RadTCCLI( ):
         if show_path:
             report_output += "\n"
             report_output += f"path_report:\n  path:\n"
-            for path_element in report[ 'path_test' ][ 'edge_path' ]:
-            #for path_element in report[ 'pather_result' ][ 'path' ]:
-                report_output += "    = {0}\n".format( str( path_element ) )
-            report_output += f"  cost: {report[ 'path_test' ][ 'cost' ]}\n  solved: {report[ 'pather_result' ][ 'solved' ]}\n"
+            if 'edge_path' in report[ 'path_test' ]:
+                for path_element in report[ 'path_test' ][ 'edge_path' ]:
+                #for path_element in report[ 'pather_result' ][ 'path' ]:
+                    report_output += "    = {0}\n".format( str( path_element ) )
+            if 'cost' in report[ 'path_test' ]:
+                report_output += f"  cost: {report[ 'path_test' ][ 'cost' ]}\n  solved: {report[ 'pather_result' ][ 'solved' ]}\n"
         if show_search_stats:
             report_output += f"search_stats:\n  step_count: {report[ 'pather_step_count' ]}\n  node_expands: {report[ 'pather_step_count' ]}\n"
 

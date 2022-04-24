@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from queue import PriorityQueue
 from radtc import pather_base
 from radtc.grid import Grid, Node
@@ -43,18 +42,17 @@ class PatherASP( PatherBase ):
         
         if current_path_segment[1] == self.finish:
             #We found our end result
+            #set pathback to be a list of nodes
             path_node = self.reached[ self.finish ]
             while not path_node[ 'node' ] == path_node[ 'parent' ]:
-                self.path_back.append( path_node )
+                self.path_back.append( path_node[ 'node' ] )
                 path_node = self.reached[ path_node[ 'parent' ] ]
-            self.path_back.append( path_node )
-
-            path = []
-            while len( self.path_back ) > 0:
-                path.append( self.path_back.pop(-1)[ 'node' ] )
+            self.path_back.append( path_node[ 'node' ] )
+            
+            #return the reversed path
+            path = list( reversed( self.path_back ) )
             results[ 'solved' ] = True
             results[ 'path' ] = path
-            #results[ 'path ' ] = self.path_back
         else:
             #expand current node
             adjacents = current_path_segment[1].expand()

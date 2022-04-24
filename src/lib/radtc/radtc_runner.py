@@ -24,7 +24,7 @@ class Runner( ):
         )
         self.emergency_break_count = config[ 'run' ].get( 
             'emergency_break_count', 
-            100000000 #change to something defined
+            10001 #change to something defined
         )
 
         self.step_modifications = config[ 'run' ].get( 
@@ -61,8 +61,11 @@ class Runner( ):
 
         result = { 'path': None }
         count = 0
-        while result[ 'path' ] == None and count < self.emergency_break_count:
+        while result[ 'path' ] == None:
             count += 1
+            if count >= self.emergency_break_count:
+                break
+
             result = pather.step()
             if self.step_modifications:
                 self.grid.shuffle_edges( self.step_modifications_percent )
@@ -82,7 +85,10 @@ class Runner( ):
         #    self.report[ 'modifications' ] = self.grid.modification_history
         Node.expands = 0
 
-        self.report[ 'path_test' ] = self.grid.test_path( result[ 'path' ] )
+        if result[ 'path' ] != None:
+            self.report[ 'path_test' ] = self.grid.test_path( result[ 'path' ] )
+        else:
+            self.report[ 'path_test' ] = 'No Available'
 
     def get_report( self ) -> dict:
         return self.report
