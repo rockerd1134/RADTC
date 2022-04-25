@@ -1,7 +1,9 @@
+from pickle import TRUE
 from queue import PriorityQueue
 from radtc import pather_base
 from radtc.grid import Grid, Node
 from radtc.pather_base import PatherBase
+import pygame as pg
 
 class PatherASP( PatherBase ):
     def __init__( self, grid: 'Grid', start: 'Node', finish: 'Node' ) -> None:
@@ -18,7 +20,8 @@ class PatherASP( PatherBase ):
         # ( pririty: int, start: Node, parent: Node )
         self.frontier = PriorityQueue()
         self.frontier.put( ( self.get_priority( start ), start, start ))
-  
+
+
     #the heuristic funtion
     # in the grid case we use manhattan
     def get_priority(self, node: 'Node' ):
@@ -29,7 +32,7 @@ class PatherASP( PatherBase ):
     #returns results
     def step( self ) -> dict:
         results = {
-            'path': None,
+            'path': [],
             'solved': False,
         }
     
@@ -55,6 +58,10 @@ class PatherASP( PatherBase ):
             results[ 'path' ] = path
         else:
             #expand current node
+            path_node = self.reached[current_path_segment[1]]
+            while not path_node[ 'node' ] == path_node[ 'parent' ]:
+                results[ 'path' ].append( path_node[ 'node' ] )
+                path_node = self.reached[ path_node[ 'parent' ] ]
             adjacents = current_path_segment[1].expand()
             for adj_node in adjacents:
                 #an edge is ( 'from node', 'to node', 'cost' )
@@ -79,4 +86,19 @@ class PatherASP( PatherBase ):
                         self.frontier.put( ( self.get_priority( adj_node ), adj_node, current_path_segment[1] ))
         return results
 
+    def renderNode(self, screen, color, row, col, square_side, margin, special: bool) -> None:
+        #colors
+        EXPLORED = (101, 109, 74)
 
+        node = self.grid.get_node(row, col)
+        if node in self.reached.keys() and not special:
+            color = EXPLORED
+
+        self._defaultNode(screen, color, row, col, square_side, margin)
+        
+        if node in self.f_table:
+            f_cost_text = self.font.render(f'F: {self.get_priority(node)}', True, (255,255,255))
+            screen.blit(f_cost_text, ((
+            (margin + square_side) * row + margin,
+            (margin + square_side) * col + margin + 10,)
+        ))

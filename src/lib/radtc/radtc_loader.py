@@ -6,9 +6,9 @@ class RadTCLoader():
         self.runner = self.__class__.from_config_file( config_file )
 
     @classmethod
-    def from_config_file( cls, config_file: str ) -> 'Runner':
+    def from_config_file( cls, config_file: str, gui_mode: bool ) -> 'Runner':
         with open( config_file, 'r' ) as conf_f:
             config = yaml.safe_load( conf_f.read() )
-            return Runner( config )
+            return Runner( config, gui_mode )
 
 

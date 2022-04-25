@@ -1,11 +1,11 @@
-from calendar import c
 import sys
 import importlib
-from tkinter import N
+import time
 from radtc.grid import Grid, Node
+from radtc.radtc_gui import RadtcGUI
 
-class Runner( ):
-    def __init__( self, config ) -> None:
+class Runner:
+    def __init__( self, config, gui_mode ) -> None:
         self.config_check = self.__class__.check_config( config )
         if not self.config_check[ 'passed' ]:
             raise Exception( f"Config incomplete. {self.config_check[ 'errors' ]}")
@@ -18,10 +18,12 @@ class Runner( ):
             config[ 'run' ][ 'start' ][ 'x'], 
             config[ 'run' ][ 'start' ][ 'y']
         )
+
         self.finish = self.grid.get_node( 
             config[ 'run' ][ 'finish' ][ 'x'], 
             config[ 'run' ][ 'finish' ][ 'y']
         )
+
         self.emergency_break_count = config[ 'run' ].get( 
             'emergency_break_count', 
             10001 #change to something defined
@@ -48,7 +50,12 @@ class Runner( ):
         self.report_grid_nodes = config[ 'run' ].get( 'report_grid_nodes', False)
         #removed because of too much memory taken
         #self.report_modifications = config[ 'run' ].get( 'report_modifications', False)
-         
+
+        #gui
+        landmarks = {'start': self.start.location, 'finish': self.finish.location}
+        self.gui = RadtcGUI(self.grid, landmarks)
+        self.gui_input = ""
+        self.gui_mode = gui_mode
 
     def run( self ) -> None:
         pather = self.pather_class( 
@@ -57,22 +64,37 @@ class Runner( ):
             self.finish
         )
 
+        self.gui.setPatherRender(pather.renderNode)
+        if (self.gui_mode):
+            self.gui.setup()
+
         #maybe check for in bounds start and finish?
-
-        result = { 'path': None }
+        result = { 'solved': False }
         count = 0
-        while result[ 'path' ] == None:
-            count += 1
-            if count >= self.emergency_break_count:
-                break
+        while result[ 'solved' ] == False:
+            if (self.gui_input != 'end' and self.gui_mode):
+                self.gui_input = self.gui.runGui()
+            
+            if (self.gui_input != 'pause'):
+                count += 1
+                if count >= self.emergency_break_count:
+                    break
 
-            result = pather.step()
-            if self.step_modifications:
-                self.grid.shuffle_edges( self.step_modifications_percent )
-            #print( f"step: {count} ({self.emergency_break_count}) res: {result}" )
-            if self.report_steps:
-                self.report[ 'steps' ].append( f"step: {count} ({self.emergency_break_count}) res: {result}" )
-            #print( sys.getsizeof( bfs ))
+                result = pather.step()
+                print(result)
+                if self.step_modifications:
+                    self.grid.shuffle_edges( self.step_modifications_percent )
+                #print( f"step: {count} ({self.emergency_break_count}) res: {result}" )
+                if self.report_steps:
+                    self.report[ 'steps' ].append( f"step: {count} ({self.emergency_break_count}) res: {result}" )
+                
+                self.gui.updatePath(result['path'], result['solved'])
+                #print( sys.getsizeof( bfs ))
+                if (self.gui_mode and self.gui_input == 'play'):
+                    time.sleep(.5)
+        if (self.gui_mode):
+            while(self.gui_input != 'end'):
+                self.gui_input = self.gui.runGui()
         self.report[ 'pather_result' ] = result
         self.report[ 'pather_step_count' ] = count
         self.report[ 'pather_node_expands' ] = Node.expands

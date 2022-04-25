@@ -49,3 +49,5 @@ class PatherBFS( PatherBase ):
             results[ 'solved' ] = True
         return results
             
+    def renderNode(self, screen, color, row, col, square_side, margin) -> None:
+        self._defaultNode(screen, color, row, col, square_side, margin)

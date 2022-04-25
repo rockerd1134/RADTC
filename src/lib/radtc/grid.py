@@ -135,9 +135,9 @@ class Grid:
     GRID_X_START_INDEX = 0
     GRID_Y_START_INDEX = 0
 
-    def __init__( self, edges: list[ Edge ], edge_cost_set: list = [10] ) -> None:
-        self.height = None 
-        self.width = None 
+    def __init__( self, edges: list[ Edge ], edge_cost_set: list = [10], height = 10, width = 10 ) -> None:
+        self.height: int = height 
+        self.width: int = width 
         self.edges = Edges( edges )
         self.edge_cost_set = edge_cost_set
         self.edge_cost_set_avg = int( sum( self.edge_cost_set ) / len( edge_cost_set ))
@@ -184,13 +184,12 @@ class Grid:
         if 'generate' in config:
             #max_nodes = int( config[ 'generate' ].get( 'max_nodes', 100) )
             #hw_ratio = int( config[ 'generate' ].get( 'hw_ratio', 1) )
-            height = int( config[ 'generate' ].get( 'height', 10) )
-            width = int( config[ 'generate' ].get( 'height', 10) )
+            height = int( config['generate'].get('height', 10) )
+            width = int( config[ 'generate' ].get('width', 10) )
             edge_max = int( config[ 'generate' ].get( 'edge_max', 100) )
             edge_minimum = int( config[ 'generate' ].get( 'edge_minimum', 1) )
             impassible_percentage = int( config[ 'generate' ].get( 'impassible_percentage', 0) )
             cardinality = int( config[ 'generate' ].get( 'cardinality', 1) )
-
             #node_counts = Grid.get_height_and_width_from_max_and_ratio( max_nodes, hw_ratio )
             x_max = width - 1
             y_max = height - 1
@@ -235,7 +234,7 @@ class Grid:
                         edges.append( north_edge_forward )
                         edges.append( north_edge_backward )
 
-            return Grid( edges, edge_cost_set=edge_cost_set )
+            return Grid( edges, edge_cost_set=edge_cost_set, height=height, width=width, )
 
     
 
