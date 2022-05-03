@@ -35,7 +35,15 @@ class PatherLPA( PatherBase ):
 
     #pg 29 line 01
     def calculate_key(self, node ):
-        g_rhs = min( self.g_table.get( node, float( 'inf' ) ), self.rhs_table.get( node, float( 'inf' )) )
+        g = self.g_table.get( node, float( 'inf' ) )
+        if g == None:
+            g = float( 'inf' )
+        rhs = self.rhs_table.get( node, float( 'inf' ) )
+        if rhs == None:
+            rhs = float( 'inf' )
+
+        g_rhs = min( g, rhs )
+        #g_rhs = min( self.g_table.get( node, float( 'inf' ) ), self.rhs_table.get( node, float( 'inf' )) )
         return ( g_rhs + self.get_hueristic( node ), g_rhs )
 
     def traceback_path(self):
@@ -137,10 +145,11 @@ class PatherLPA( PatherBase ):
             'path': None,
             'solved': False,
         }
-        #modded_edges = self.grid.get_last_modified_edges()
+        modded_edges = self.grid.get_last_modified_edges()
         #check if modified edges effect anything in reached
         #to needed work for those
-        #for modded_edge in modded_edges:
+        for modded_edge in modded_edges:
+            self.update_vertex( Node( self.grid, modded_edge.destination ))
 
 #        print( self.frontier.queue ) 
         #pg 11 ln 09
