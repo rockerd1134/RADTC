@@ -162,13 +162,13 @@ class PatherLPA( PatherBase ):
         modded_edges = self.grid.get_last_modified_edges()
         #check if modified edges effect anything in reached
         #to needed work for those
-#        for modded_edge in modded_edges:
+        for modded_edge in modded_edges:
 #            #source = Node( self.grid, modded_edge.source )
-#            destination = Node( self.grid, modded_edge.destination )
+            destination = Node( self.grid, modded_edge.destination )
 #            #if source in self.g_table:
 #                #self.update_vertex( source )
-#            if destination in self.g_table:
-#                self.update_vertex( destination )
+            if destination in self.g_table:
+                self.update_vertex( destination )
 
 #        print( self.frontier.queue ) 
         #pg 11 ln 09
@@ -180,7 +180,7 @@ class PatherLPA( PatherBase ):
           print( 'empty')
         #pg 29 ln 12 ( while (U.TopKey() <˙ CalculateKey(sgoal) OR rhs(sgoal) 6= g(sgoal)))
         #if self.frontier.queue[0][1] != self.finish or self.rhs_table[ self.finish ] != self.g_table[ self.finish ]:
-        if ( self.frontier.queue[0][0] <= self.calculate_key( self.finish ) ) or ( self.rhs_table[ self.finish ] != self.g_table[ self.finish ] and self.g_table[ self.finish ] != float( 'inf') ):
+        if ( self.frontier.queue[0][0] < self.calculate_key( self.finish ) ) or ( self.rhs_table[ self.finish ] != self.g_table[ self.finish ] and self.g_table[ self.finish ] != float( 'inf') ):
 
             #pg 11 ln 10 POP
             current_tuple = self.frontier.get()
@@ -232,13 +232,16 @@ class PatherLPA( PatherBase ):
                 for successor in current_node.expand():
                     self.update_vertex( successor )
 
-#        elif self.frontier.queue[0][1] == self.finish:
-#            print( f'current g229: {self.finish} {self.g_table[ self.finish]}')
-#            self.update_vertex( self.finish )
-#            print( f'current g233: {self.finish} {self.g_table[ self.finish]}')
-#            print( self.frontier.queue )
-#            #exit(1)
-        else:
+        elif self.frontier.queue[0][1] == self.finish:
+            print( f'current g229: {self.finish} {self.g_table[ self.finish]}')
+            self.update_vertex( self.finish )
+            print( f'current g233: {self.finish} {self.g_table[ self.finish]}')
+            #print( self.frontier.queue )
+            #exit(1)
+            if self.g_table[ self.finish ] > self.rhs_table[ self.finish ]:
+                self.g_table[ self.finish ] = self.rhs_table[ self.finish ]
+                self.pred[ self.finish ] = self.rhs_pred[ self.finish ]
+#        else:
             if self.g_table[ self.finish ] != float( 'inf' ):
                 #we have found a path
                 results[ 'solved' ] = True
