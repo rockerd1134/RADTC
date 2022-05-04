@@ -72,19 +72,19 @@ class PatherLPA( PatherBase ):
     #and returns the cheapest
     #pg 29 line 09
     def get_rhs( self, node: 'Node' ) -> int:
-        print( f"get_rhs: {node}")
+        #print( f"get_rhs: {node}")
         min_rhs = None
         min_rhs_node = None
-        if not node in self.g_table:
-            print( f"get_rhs {node} not in gtable")
-        if node in self.pred:
-            print( f"get_rhs parent for {node} is {self.pred[ node ]}")
+#        if not node in self.g_table:
+#            print( f"get_rhs {node} not in gtable")
+#        if node in self.pred:
+#            print( f"get_rhs parent for {node} is {self.pred[ node ]}")
         for adjacent in node.expand():
 #            print( f"a: {adjacent}")
             #if adjacent == self.finish:
             #    exit(1)
             if adjacent in self.g_table:
-                print( f"a: {adjacent} in table {self.g_table[ adjacent ]}")
+                #print( f"a: {adjacent} in table {self.g_table[ adjacent ]}")
                 adjacent_rhs = adjacent.get_cost_to( node ) + self.g_table[ adjacent ]
                 if not adjacent.get_cost_to( node ) == None:
                     if min_rhs == None:
@@ -101,16 +101,18 @@ class PatherLPA( PatherBase ):
             else:
                 #we have never encountered this node
                 #It needs to be queued for expansion before we use it for 
-                print( f"a: {adjacent} not in table")
+                #print( f"a: {adjacent} not in table")
                 pass
-        if min_rhs == float( 'inf' ):
-            print( f'min rhs is inf {node}' )
+#        if min_rhs == float( 'inf' ):
+#            print( f'min rhs is inf {node}' )
 
             #exit(1)
+            if min_rhs == None:
+                min_rhs = float( 'inf' )
         return { 'rhs': min_rhs, 'source': min_rhs_node }
 
     def update_vertex( self, node: 'Node' ) -> None:
-        print( f"uv: {node}" )
+        #print( f"uv: {node}" )
         #pg 29 line 09
         if node != self.start:
             rhs = self.get_rhs( node )
@@ -140,16 +142,26 @@ class PatherLPA( PatherBase ):
             #pg 29 line 11
             if not node in self.g_table:
                 if rhs[ 'source' ] in self.g_table:
-                    to_insert = ( self.calculate_key( node ), node, rhs[ 'source' ] )
-                    print( f"inserted: {to_insert}" )
+                    if node == self.finish:
+                        #this node needs to be processed next
+                        to_insert = ( (0,0), node, rhs[ 'source' ] )
+                    else:
+                        to_insert = ( self.calculate_key( node ), node, rhs[ 'source' ] )
+                    #print( f"inserted: {to_insert}" )
                     self.frontier.put( to_insert )
             elif self.g_table[ node ] != self.rhs_table[ node ]:
-                if not rhs[ 'source' ] in self.g_table:
-                    print( f"no source {rhs[ 'source' ]} for {node}")
-
-                to_insert = ( self.calculate_key( node ), node, rhs[ 'source' ] )
-                print( f"inserted: {to_insert}" )
+#                if not rhs[ 'source' ] in self.g_table:
+#                    print( f"no source {rhs[ 'source' ]} for {node}")
+                if node == self.finish:
+                    #this node needs to be processed next
+                    to_insert = ( (0,0), node, rhs[ 'source' ] )
+                else:
+                    to_insert = ( self.calculate_key( node ), node, rhs[ 'source' ] )
                 self.frontier.put( to_insert )
+
+#                to_insert = ( self.calculate_key( node ), node, rhs[ 'source' ] )
+                #print( f"inserted: {to_insert}" )
+#                self.frontier.put( to_insert )
 
 
     #one iteration of the search i.e. expanding one node
@@ -172,20 +184,21 @@ class PatherLPA( PatherBase ):
 
 #        print( self.frontier.queue ) 
         #pg 11 ln 09
-        if not self.frontier.empty():
-          print( self.frontier.queue[0] )
-          print( self.calculate_key( self.finish ) )
-          print( 'not empty' )
-        else:
-          print( 'empty')
+#        if not self.frontier.empty():
+#          print( self.frontier.queue[0] )
+#          print( self.calculate_key( self.finish ) )
+#          print( 'not empty' )
+#        else:
+#          print( 'empty')
         #pg 29 ln 12 ( while (U.TopKey() <˙ CalculateKey(sgoal) OR rhs(sgoal) 6= g(sgoal)))
         #if self.frontier.queue[0][1] != self.finish or self.rhs_table[ self.finish ] != self.g_table[ self.finish ]:
-        if ( self.frontier.queue[0][0] < self.calculate_key( self.finish ) ) or ( self.rhs_table[ self.finish ] != self.g_table[ self.finish ] and self.g_table[ self.finish ] != float( 'inf') ):
+        if ( self.frontier.queue[0][0] < self.calculate_key( self.finish ) and self.frontier.queue[0][1] != self.finish ) or ( self.rhs_table[ self.finish ] != self.g_table[ self.finish ] and self.g_table[ self.finish ] != float( 'inf') ):
 
             #pg 11 ln 10 POP
             current_tuple = self.frontier.get()
-            print( f"ct: {current_tuple}" )
+            #print( f"ct: {current_tuple}" )
             ( key, current_node, parent ) = current_tuple
+            #print( self.frontier.queue )
 #            print( f"ct_g: {self.g_table.get( current_node, 'na' )}")
 #            print( f"ct_rhs: {self.rhs_table.get( current_node, 'na' )}")
             #if current_node == self.finish:
@@ -219,23 +232,23 @@ class PatherLPA( PatherBase ):
                     #self.frontier.put( ( self.calculate_key( self.finish ), current_node, parent ) )
                     #pass
                 #else:
-                print( f'current g215: {current_node}  {self.g_table[ current_node]}')
+                #print( f'current g215: {current_node}  {self.g_table[ current_node]}')
                 for successor in current_node.expand():
                     self.update_vertex( successor )
             else:
 #                print( "locally const" )
                 if current_node != self.start:
                     self.g_table[ current_node ] = float( 'inf' )
-                print( f'current g224: {current_node} {self.g_table[ current_node]} {self.rhs_table[ current_node ]}')
+                #print( f'current g224: {current_node} {self.g_table[ current_node]} {self.rhs_table[ current_node ]}')
                 self.update_vertex( current_node )
-                print( f'current g226: {current_node} {self.g_table[ current_node]} {self.rhs_table[ current_node ]}')
+                #print( f'current g226: {current_node} {self.g_table[ current_node]} {self.rhs_table[ current_node ]}')
                 for successor in current_node.expand():
                     self.update_vertex( successor )
 
         elif self.frontier.queue[0][1] == self.finish:
-            print( f'current g229: {self.finish} {self.g_table[ self.finish]}')
+            #print( f'current g229: {self.finish} {self.g_table[ self.finish]}')
             self.update_vertex( self.finish )
-            print( f'current g233: {self.finish} {self.g_table[ self.finish]}')
+            #print( f'current g233: {self.finish} {self.g_table[ self.finish]}')
             #print( self.frontier.queue )
             #exit(1)
             if self.g_table[ self.finish ] > self.rhs_table[ self.finish ]:
@@ -249,8 +262,8 @@ class PatherLPA( PatherBase ):
             else:
                 results[ 'solved' ] = False
 
-        print( self.g_table[ self.finish ])
-        print( self.rhs_table[ self.finish ])
+        #print( self.g_table[ self.finish ])
+        #print( self.rhs_table[ self.finish ])
                 
         return results
 
