@@ -13,12 +13,12 @@ run:
         x: 0
         y: 0
     finish:             #location of the finish of the path search
-        x: 5 
-        y: 8
+        x: 6
+        y: 9
     # where to look for the pather class code if outside of the library
     #'pather_module_lib_path' : r"C:\Users\rocker\Documents\Personal\classes\MS State\Spring 2022\AI\git\RADTC\src\lib\radtc\",
     pather_module: radtc.pather_lpa     #which module to load for the pather algorithm class
     pather_class: PatherLPA
     step_modifications: #every step in the search the grid can be modified
-        percent: 1      #percentage of grid edges shuffled each step
-    emergency_break_count: 1000
+        percent: 10      #percentage of grid edges shuffled each step
+    emergency_break_count: 5000
