@@ -123,7 +123,6 @@ class PatherDLite( PatherBase ):
                 path.append( path_step )
                 #print( f"p: {path_step} g: {self.g_table[ path_step ]}" )
                 next_step_cost = float( 'inf' )
-                the_next_step = None
                 for next_step in path_step.expand_for_successor_nodes( free_expand=True ):
                     #print( f"n: {next_step} g: {self.g_table[ next_step ]}" )
                     #if True:
@@ -134,9 +133,6 @@ class PatherDLite( PatherBase ):
                             the_next_step = next_step
                             next_step_cost = new_next_step_cost
                 path_step = the_next_step
-                if path_step == None:
-                    break
-                    
                     #else:
                     #    print( f"bad next_step {next_step} {self.g_table[ next_step]}")
                     #    print( path )
@@ -175,7 +171,7 @@ class PatherDLite( PatherBase ):
                 self.update_vertex( u )
 
         #pg 5 ln 10
-        if ( self.frontier.top_key() < self.calculate_key( self.start ) ) or self.rhs_table[ self.start ] > self.g_table[ self.start ]:
+        while ( self.frontier.top_key() < self.calculate_key( self.start ) ) or self.rhs_table[ self.start ] > self.g_table[ self.start ]:
             #print( f"tk: {self.frontier.top_key()}" )
             current_node = self.frontier.top()
             k_old = self.frontier.top_key()
@@ -199,28 +195,26 @@ class PatherDLite( PatherBase ):
                 #pg 5 ln 25
                 for update_node in [ current_node ] + current_node.expand_for_predecessor_nodes():
                 #for update_node in [ current_node ] + current_node.expand_for_predecessor_nodes():
-                    #print( f"{update_node}  c {current_node}" )
+                    print( f"{update_node}  c {current_node}" )
                     if self.rhs_table[ update_node ] == update_node.get_cost_to( current_node ) + g_old:
                         if update_node != self.finish:
                             #pg 4 ln 27
                             self.rhs_table[ update_node ] = self.get_rhs( update_node )
                     self.update_vertex( update_node )
         #elif self.frontier.top_key() == self.calculate_key( self.start ):
-        else: 
-            current_node = self.frontier.top()
-            if current_node == self.start:
-                #print( f'start {self.g_table[ current_node ]} {self.rhs_table[ current_node]} ')
-                self.update_vertex( current_node )
-                #print( f'start {self.g_table[ current_node ]} {self.rhs_table[ current_node]} ')
-                self.g_table[ current_node ] = self.rhs_table[ current_node ]
-                #print( f'start {self.g_table[ current_node ]} {self.rhs_table[ current_node]} ')
-            #for g in sorted( list(self.g_table.keys() ) ):
-                #print( f"{g} {self.g_table[g]}")
-            #print( self.g_table )
-            results[ 'path' ] = self.get_path()
-            results[ 'solved' ] = True
-
-
+#        if True: 
+#            current_node = self.frontier.top()
+#            if current_node == self.start:
+#                print( f'start {self.g_table[ current_node ]} {self.rhs_table[ current_node]} ')
+#                #self.update_vertex( current_node )
+#                print( f'start {self.g_table[ current_node ]} {self.rhs_table[ current_node]} ')
+#                self.g_table[ current_node ] = self.rhs_table[ current_node ]
+#                print( f'start {self.g_table[ current_node ]} {self.rhs_table[ current_node]} ')
+#            for g in sorted( list(self.g_table.keys() ) ):
+#                print( f"{g} {self.g_table[g]}")
+#            #print( self.g_table )
+        results[ 'path' ] = self.get_path()
+        results[ 'solved' ] = True
 
         #search here
         return results

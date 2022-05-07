@@ -1,4 +1,5 @@
 from operator import mod
+from copy import deepcopy
 import random
 
 
@@ -271,14 +272,12 @@ class Grid:
                 if direction_node != None:
                     to_be_modified_edge = target_node.get_edge_to( direction_node )
                     if to_be_modified_edge != None:
-                        #modification[ 'was' ] = str( to_be_modified_edge )
-                        modification[ 'was' ] = to_be_modified_edge 
+                        modification[ 'was' ] = deepcopy( to_be_modified_edge )
                         new_cost = self._get_edge_cost_change_random()
                         while new_cost == to_be_modified_edge.cost:
                             new_cost = self._get_edge_cost_change_random()
                         to_be_modified_edge.cost = new_cost
-                        modification[ 'is' ] = to_be_modified_edge 
-                        #modification[ 'is' ] = str( to_be_modified_edge )
+                        modification[ 'is' ] = deepcopy( to_be_modified_edge )
                         modified_edge_count += 1
                         modifications.append( modification )
         self.modification_history.append( { 
@@ -302,6 +301,15 @@ class Grid:
             return mods[0]
         else:
             return []
+
+    def get_last_edge_modifications( self ) -> list:
+        modded_edges = []
+        mods = self.get_last_modifications()
+        if len( mods ) >= 1:
+            for modification in mods[ 'modifications']:
+                if modification[ 'type' ] == 'EdgeCost':
+                    modded_edges.append( modification )
+        return modded_edges
 
     def get_last_modified_edges( self ) -> list:
         modded_edges = []
@@ -348,12 +356,15 @@ class Grid:
     #This is expensive 
     def get_nodes( self ) -> set[ 'Node' ]:
         ''' Get's all possible edge source and destination'''
-        nodes = set()
+        edge_locs = set()
         for edge in self.get_edges():
-            if not edge.source in nodes:
-                nodes.add( edge.source ) 
-            if not edge.destination in nodes:
-                nodes.add( edge.destination ) 
+            if not edge.source in edge_locs:
+                edge_locs.add( edge.source )
+            if not edge.destination in edge_locs:
+                edge_locs.add( edge.destination )
+        nodes = set()
+        for edge_loc in edge_locs:
+            nodes.add( Node( self, edge_loc ))
         return nodes
 
     def get_edges( self ) -> list[ 'Edge' ]:
@@ -399,7 +410,7 @@ class Grid:
                 results[ 'cost' ] += cost_to_next
                 results[ 'edge_path' ].append( path[ step_count ].get_edge_to( path[ step_count + 1 ]) )
             else:
-                results[ 'complete' ] = False
+                results[ 'congruent' ] = False
                 results[ 'errors' ].append( { 'source': path[ step_count ], 'dest': path[ step_count + 1 ] } )
             step_count += 1
 
@@ -448,10 +459,11 @@ class Node:
             return False
 
     #### gets
-    def expand( self ) -> list[ 'Node' ]:
+    def expand( self, free_expand=False ) -> list[ 'Node' ]:
         ''' returns adjacent nodes N,E,W,S '''
-        #record the expantion
-        self.__class__.expands += 1
+        #record the expantion unless told otherwise
+        if not free_expand:
+            self.__class__.expands += 1
 
         nodes = []
         north = self.get_adjacent_north()
@@ -467,6 +479,25 @@ class Node:
         if west:
             nodes.append( west )
         return nodes
+
+    def expand_for_successor_nodes( self, free_expand=False ) -> list[ 'Node' ]:
+        successors = []
+        adjacents = self.expand( free_expand )
+        for adjacent in adjacents:
+            if self.get_edge_to( adjacent ) != None:
+                successors.append( adjacent )
+        return successors
+
+    def expand_for_predecessor_nodes( self, free_expand=False ) -> list[ 'Node' ]:
+        predecessors = []
+        adjacents = self.expand( free_expand )
+        for adjacent in adjacents:
+            if adjacent.get_edge_to( self ) != None:
+                predecessors.append( adjacent )
+        return predecessors
+    #def expand_for_predeccesor_nodes( self ) -> list[ 'Node' ]:
+        
+
 
     def get_adjacent_north( self ) -> 'Node':
         return self.grid.get_node_at_location( self.grid.adjacent_north_of( self.location ) )
@@ -487,6 +518,8 @@ class Node:
             return None
 
     def get_cost_to( self, node: 'Node' ) -> int:
+        if node == self:
+            return 0
         edge_to = self.get_edge_to( node )
         if edge_to != None:
             return edge_to.cost
