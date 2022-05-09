@@ -191,12 +191,14 @@ class Grid:
             edge_minimum = int( config[ 'generate' ].get( 'edge_minimum', 1) )
             impassible_percentage = int( config[ 'generate' ].get( 'impassible_percentage', 0) )
             cardinality = int( config[ 'generate' ].get( 'cardinality', 1) )
+            edge_cost_set = config[ 'generate' ].get( 'edge_cost_set', None )
 
             #node_counts = Grid.get_height_and_width_from_max_and_ratio( max_nodes, hw_ratio )
             x_max = width - 1
             y_max = height - 1
 
-            edge_cost_set = cls._get_edge_cost_set( edge_max, edge_minimum, cardinality )
+            if edge_cost_set == None:
+                edge_cost_set = cls._get_edge_cost_set( edge_max, edge_minimum, cardinality )
 
 
             #ready to create the edges
