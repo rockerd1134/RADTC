@@ -2,24 +2,21 @@
 #an example of 10x10 grid with A* Pruning run on it and 5% dynamic edges per search step
 grid:
     generate: 
-        height: 10   
-        width: 10
-        #edge_max: 100   #maximum cost for an edge
-        #edge_minimum: 1 #minimum cost for an edge
-        #'impassible_percentage' : 100,  #percentage of impassible (removed) edges
-        #cardinality: 18   #number of different possible edge costs
+        height: 40   
+        width: 40
         edge_cost_set:
             - 10
+            - 50
             - 100
-            - 300
-            - 800
+            - 500
+            - 1000
 run:
     start:              #location of the start of the path search
         x: 0
         y: 0
     finish:             #location of the finish of the path search
-        x: 6
-        y: 9
+        x: 20 
+        y: 35 
     # where to look for the pather class code if outside of the library
     #'pather_module_lib_path' : r"C:\Users\rocker\Documents\Personal\classes\MS State\Spring 2022\AI\git\RADTC\src\lib\radtc\",
     pather_module: radtc.pather_dlite     #which module to load for the pather algorithm class

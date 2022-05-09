@@ -1,7 +1,7 @@
-from calendar import c
+#from calendar import c
 import sys
 import importlib
-from tkinter import N
+#from tkinter import N
 from radtc.grid import Grid, Node
 
 class Runner( ):
@@ -14,6 +14,9 @@ class Runner( ):
             'steps': []
         }
         self.grid = Grid.from_config( config[ 'grid' ] )
+        #reset any expand counts
+        Node.expands = 0
+
         self.start = self.grid.get_node( 
             config[ 'run' ][ 'start' ][ 'x'], 
             config[ 'run' ][ 'start' ][ 'y']
@@ -38,6 +41,17 @@ class Runner( ):
             sys.path.append( config[ 'run' ][ 'pather_module_lib_path' ] )
         self.pather_module = importlib.import_module( config[ 'run' ][ 'pather_module' ] )
         self.pather_class = getattr( self.pather_module, config[ 'run' ][ 'pather_class' ] )
+
+        if 'comparison_pather_module_lib_path' in config:
+            sys.path.append( config[ 'run' ][ 'comparison_pather_module_lib_path' ] )
+        if 'comparison_pather_class' in config[ 'run' ]:
+            self.comparison_pather_module = importlib.import_module( config[ 'run' ][ 'comparison_pather_module' ] )
+            self.comparison_pather_class = getattr( self.comparison_pather_module, config[ 'run' ][ 'comparison_pather_class' ] )
+        else:
+            #this should come from some defaults
+            self.comparison_pather_module = importlib.import_module( 'radtc.pather_astar_prune' )
+            self.comparison_pather_class = getattr( self.comparison_pather_module, "PatherASP" )
+            #self.comparison_pather_class = None
 
         #for storing our report
         # maybe this should be an object
@@ -89,6 +103,30 @@ class Runner( ):
             self.report[ 'path_test' ] = self.grid.test_path( result[ 'path' ] )
         else:
             self.report[ 'path_test' ] = 'No Available'
+
+
+        #comparison
+        if self.comparison_pather_class != None:
+            print( 'hi')
+            self.report[ 'comparison' ] = {
+                'comparison_class' : self.comparison_pather_class
+            }
+            comp_pather = self.comparison_pather_class( 
+                self.grid, 
+                self.start, 
+                self.finish
+            )
+            path_result = { 'path': None }
+            count = 0
+            while path_result[ 'path' ] == None:
+                count += 1
+                if count >= self.emergency_break_count:
+                    break
+                path_result = comp_pather.step()
+                if path_result[ 'path' ] != None:
+                    self.report[ 'comparison' ][ 'path_test' ] = self.grid.test_path( path_result[ 'path' ] )
+                else:
+                    self.report[ 'comparison' ][ 'path_test' ] = 'No Available'
 
     def get_report( self ) -> dict:
         return self.report

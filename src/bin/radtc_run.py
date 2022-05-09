@@ -12,9 +12,19 @@ parser.add_argument(
     dest='config_file',
     required=True
 )
+parser.add_argument( 
+    '--loop', '-l',
+    action='store',
+    type=int,
+    dest='loop',
+    default=1
+)
 args = parser.parse_args()
 
-runner = RadTCLoader.from_config_file( config_file= args.config_file)
-runner.run()
-RadTCCLI.print_report( runner.get_report() )
+for i in range(args.loop):
+    print( f'#####  Start Trial {i}  #####\n')
+    runner = RadTCLoader.from_config_file( config_file= args.config_file)
+    runner.run()
+    RadTCCLI.print_report( runner.get_report() )
+    print( f'#####  End Trial {i}  #####\n\n')
 
